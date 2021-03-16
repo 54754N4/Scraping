@@ -11,7 +11,13 @@ import com.google.common.io.Files;
 
 public final class Credentials {
 	public final transient String username, password;
+
+	public Credentials(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
 	
+	// Deserialising constructor
 	public Credentials(Path path) throws IOException {
 		List<String> lines = Files.readLines(path.toFile(), StandardCharsets.UTF_8);
 		username = lines.get(0);
@@ -26,16 +32,18 @@ public final class Credentials {
 		return password;
 	}
 	
-	public File serializeTo(String filepath) throws IOException {
+	@Override
+	public String toString() {
+		return String.format("U:%s%nP:%s%n", username, password);
+	}
+	
+	/* Serialisation */
+	
+	public File toFile(String filepath) throws IOException {
 		File file = Paths.get(filepath).toFile();
 		Files.asCharSink(file, StandardCharsets.UTF_8)
 			.write(String.format("%s%n%s%n", username, password));
 		return file;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("U:%s%nP:%s%n", username, password);
 	}
 	
 	public static Credentials fromFile(Path filepath) throws IOException {
