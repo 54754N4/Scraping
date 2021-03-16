@@ -23,7 +23,7 @@ public class Json {
 		.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
 		.create();
 	
-	public static <T> String of(T object) {
+	public static String of(Object object) {
 		return GSON.toJson(object);
 	}
 	
@@ -31,12 +31,26 @@ public class Json {
 		return GSON.fromJson(json, cls);
 	}
 	
-	public static <T> List<T> toList(String json, Class<T> list) {
+	public static <T> T toType(String json, Type type) {
+		return GSON.fromJson(json, type);
+	}
+	
+	public static <T> List<T> toList(String json) {
 		Type type = new TypeToken<Collection<T>>(){}.getType();
 		return GSON.fromJson(json, type);
 	}
 	
-	/* Custom local date time serialisation */
+	public static <T> PagedResult<T> toPagedResult(String json) {
+		Type type = new TypeToken<PagedResult<T>>(){}.getType();
+		return GSON.fromJson(json, type);
+	}
+	
+	public static <T> List<PagedResult<T>> toPagedResultList(String json) {
+		Type type = new TypeToken<List<PagedResult<T>>>(){}.getType();
+		return GSON.fromJson(json, type);
+	}
+	
+	/* Custom local date time serialization */
 	
 	public static class LocalDateTimeSerializer implements JsonSerializer<LocalDateTime> {
 		@Override

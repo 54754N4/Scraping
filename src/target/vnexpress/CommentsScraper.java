@@ -1,4 +1,4 @@
-package scrape;
+package target.vnexpress;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,9 +7,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import com.google.gson.internal.LinkedTreeMap;
+
+import scrape.Browser;
+import scrape.Json;
+import target.vnexpress.comments.Comment;
+import target.vnexpress.comments.CommentsPage;
 
 public class CommentsScraper {
 	public static final String USER_SELECTOR = "a.nickname > b",
@@ -20,41 +28,36 @@ public class CommentsScraper {
 			LOAD_SELECTOR = "p.count-reply > a.view_all_reply",
 			SHRUNKEN_COMMENT = "div.content-comment > p.content_less > a.icon_show_full_comment";
 	private int count = 0;	// comments count
-	private Browser browser;
-	private List<Page> pages;
+	private List<CommentsPage> pages;
 	
 	public CommentsScraper(String...urls) {
 		pages = new ArrayList<>();
 		try (Browser browser = new Browser(true)) {
-			this.browser = browser;
 			for (String url : urls)
-				pages.add(loadComments(url));
-		} finally {	// prevent browser memory leak
-			if (browser != null)
-				browser.close();
+				pages.add(loadComments(browser, url));
 		}
 	}
 	
-	private Page loadComments(String url) {
+	private CommentsPage loadComments(Browser browser, String url) {
 		System.out.printf("Scraping website: %s%n", url);
 		WebElement commentsBox = browser
 				.visit(url)	// load website
-				.waitFor(By.cssSelector("div.box_comment_vne.width_common"));
+				.waitGet(By.cssSelector("div.box_comment_vne.width_common"));
 		// Click on 'Xem them' first to load everything
-		try {
-			commentsBox.findElement(By.className("view_more_coment"))
-				.click();
-		} catch (Exception e) { /* if there's no button we don't care */ }
+		WebElement xemThem = commentsBox.findElement(By.className("view_more_coment"));
+		if (xemThem != null)	// if there's no button we don't care
+			xemThem.click();
 		// Get all comments
-		List<Comment> comments = new ArrayList<>();
-		commentsBox.findElements(By.cssSelector("div.comment_item.width_common"))
-			.forEach(domComment -> comments.add(convertToComment(domComment)));
+		List<Comment> comments = commentsBox.findElements(By.cssSelector("div.comment_item.width_common"))
+			.stream()
+			.map(this::convertToComment)
+			.collect(Collectors.toList());
 		System.out.printf("Global comments : %d%n", comments.size());
 		System.out.printf("Total comments : %d%n", count);
 		count = 0;	// reset total page comments count
-		return new Page.Builder()
+		return new CommentsPage.Builder()
 			.setUrl(url)
-			.setComments(comments)
+			.setElements(comments)
 			.build();
 	}
 	
@@ -103,12 +106,12 @@ public class CommentsScraper {
 		return Files.writeString(Paths.get(filename), Json.of(pages));
 	}
 	
-	public static List<Page> deserialize(String filename) throws IOException {
+	public static <T> List<List<LinkedTreeMap<String, T>>> deserialize(String filename) throws IOException {
 		String json = Files.newBufferedReader(Paths.get(filename))
 			.lines()
 			.reduce((s1,s2) -> s1 + System.lineSeparator() + s2)
 			.get();
-		return Json.toList(json, Page.class);
+		return Json.toList(json);
 	}
 	
 	@Override

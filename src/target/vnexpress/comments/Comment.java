@@ -1,4 +1,4 @@
-package scrape;
+package target.vnexpress.comments;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,36 +21,9 @@ public class Comment {
 		return this;
 	}
 	
-	private String jsonify(final int depth) {
-		final String tab = tabs(depth);
-		return  "\n"+
-				tab + "{\n" +
-				tab + "\t\"user\": \"" + user + "\",\n" +
-				tab + "\t\"message\": \"" + escape(message) + "\",\n" +
-				tab + "\t\"timestamp\": \"" + timestamp + "\",\n" +
-				tab + "\t\"replies\": " + Arrays.deepToString(replies.stream()
-					.map(comment -> comment.jsonify(depth+1))
-					.collect(Collectors.toList())
-					.toArray()) + "\n" +
-				tab + "}";
-	}
-	
 	@Override
 	public String toString() {
 		return jsonify(0);
-	}
-	
-	// Static helpers
-	
-	private static String escape(String input) {
-		return input.replace("\"", "\\\"")	// escape double quotes
-				.replace("\n", "\\n");		// escape newlines
-	}
-	
-	private static String tabs(int i) {
-		StringBuilder sb = new StringBuilder();
-		while (i-->0) sb.append("\t");
-		return sb.toString();
 	}
 	
 	public static class Builder {
@@ -80,5 +53,32 @@ public class Comment {
 				throw new IllegalArgumentException("Timestamp cannot be null");
 			return new Comment(user, message, timestamp);
 		}
+	}
+	
+	// Manual jsonify methods
+	
+	private static String escape(String input) {
+		return input.replace("\"", "\\\"")	// escape double quotes
+				.replace("\n", "\\n");		// escape newlines
+	}
+	
+	private static String tabs(int i) {
+		StringBuilder sb = new StringBuilder();
+		while (i-->0) sb.append("\t");
+		return sb.toString();
+	}
+	
+	private String jsonify(final int depth) {
+		final String tab = tabs(depth);
+		return  "\n"+
+				tab + "{\n" +
+				tab + "\t\"user\": \"" + user + "\",\n" +
+				tab + "\t\"message\": \"" + escape(message) + "\",\n" +
+				tab + "\t\"timestamp\": \"" + timestamp + "\",\n" +
+				tab + "\t\"replies\": " + Arrays.deepToString(replies.stream()
+					.map(comment -> comment.jsonify(depth+1))
+					.collect(Collectors.toList())
+					.toArray()) + "\n" +
+				tab + "}";
 	}
 }
