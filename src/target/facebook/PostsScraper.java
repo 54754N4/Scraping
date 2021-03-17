@@ -16,13 +16,10 @@ import org.openqa.selenium.WebElement;
 import com.google.gson.internal.LinkedTreeMap;
 
 import scrape.Browser;
-import scrape.Json;
 import scrape.Browser.ScrollOptions.Behavior;
 import scrape.Browser.ScrollOptions.Block;
 import scrape.Browser.ScrollOptions.Inline;
-import target.facebook.posts.Post;
-import target.facebook.posts.PostsPage;
-import target.vnexpress.comments.Comment;
+import scrape.Json;
 
 public class PostsScraper {
 	/* Since facebook is fully dynamic, waiting a few seconds after loading a page gives enough lee-way 
@@ -156,7 +153,6 @@ public class PostsScraper {
 	}
 	
 	private Post convertToPost(Browser browser, WebElement dom) {
-		long htmlGenerationDelay = 2000;
 		WebElement time = dom.findElement(HOVER_SELECTOR),
 				likes = dom.findElement(LIKES_SELECTOR),
 				text = dom.findElement(TEXT_SELECTOR);
@@ -167,6 +163,7 @@ public class PostsScraper {
 			dom.findElement(SHRUNK_MESSAGE_SELECTOR).click();
 		} catch (Exception e) {}
 		// Scrape data
+		long htmlGenerationDelay = 2000;
 		Post.Builder builder = new Post.Builder()
 			.setText(text.getText())
 			.setLikes(likes.getText())
@@ -178,11 +175,11 @@ public class PostsScraper {
 		browser.hover(text)
 			.sleep(htmlGenerationDelay);	// in this case it's for HTML removal delay
 		Post post = builder.build();
-		loadMore(post, dom);
+		loadComments(post, dom);
 		return post;
 	}
 	
-	private void loadMore(Post parent, WebElement post) {
+	private void loadComments(Post parent, WebElement post) {
 		
 	}
 	

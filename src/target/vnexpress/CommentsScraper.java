@@ -16,8 +16,6 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import scrape.Browser;
 import scrape.Json;
-import target.vnexpress.comments.Comment;
-import target.vnexpress.comments.CommentsPage;
 
 public class CommentsScraper {
 	public static final String USER_SELECTOR = "a.nickname > b",

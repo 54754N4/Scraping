@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import target.vnexpress.Comment;
 import target.vnexpress.CommentsScraper;
-import target.vnexpress.comments.Comment;
 
 /*  https://jsonformatter.curiousconcept.com/#
  *  for JSON pretty-printing since GSON makes it ugly */
@@ -17,7 +17,7 @@ public class ScrapeVNExpress {
 			"https://vnexpress.net/them-mot-nguoi-nhat-o-ha-noi-duong-tinh-ncov-4235646.html"
 		};
 		CommentsScraper scraper = new CommentsScraper(urls);
-		Path path = scraper.serialize("comments.json");
+		Path path = scraper.serialize("data/comments.json");
 		// Deserialisation
 		List<List<LinkedTreeMap<String, Comment>>> pages = CommentsScraper.deserialize(path.toString());
 		pages.forEach(page -> page.forEach(System.out::println));

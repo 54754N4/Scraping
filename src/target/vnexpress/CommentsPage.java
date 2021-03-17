@@ -1,4 +1,4 @@
-package target.vnexpress.comments;
+package target.vnexpress;
 
 import java.time.LocalDateTime;
 import java.util.List;

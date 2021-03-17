@@ -1,4 +1,4 @@
-package target.facebook.posts;
+package target.facebook;
 
 import java.time.LocalDateTime;
 import java.util.List;

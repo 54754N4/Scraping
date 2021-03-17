@@ -1,4 +1,4 @@
-package target.vnexpress.comments;
+package target.vnexpress;
 
 import java.util.ArrayList;
 import java.util.Arrays;
